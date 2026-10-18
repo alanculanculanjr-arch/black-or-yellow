@@ -23,5 +23,5 @@ screenshots/
 vision/run1/
 vision/debug/
 vision/*.log
-CLAUDE.md
+/CLAUDE.md
 docs/code-excerpts.html
