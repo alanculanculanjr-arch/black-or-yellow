@@ -5,9 +5,10 @@
 #   height : the ball's touching point is corrected for the angled camera
 #   colour : BLACK/YELLOW share of the ball's footprint, 20-point lead, edge rule
 import json, time
+from pathlib import Path
 import cv2, numpy as np
 
-B = json.load(open('/data/project/vision/board.json'))
+B = json.load(open(Path(__file__).with_name('board.json')))
 A, C, W_ = B['area_mm'], B['cell_mm'], B['divider_mm']
 INSET = (B['marker_mm'] - B['marker_black_mm']) / 2
 K_MM = B['marker_black_mm']
@@ -28,7 +29,7 @@ REGION = {(0, 0): (_sq(INSET, INSET), 0), (0, 1): (_sq(_far, INSET), 1),
           (1, 1): (_sq(_far, _far), 2), (1, 0): (_sq(INSET, _far), 3)}
 CELLS = [(r * 4 + c + 1, c * (C + W_), r * (C + W_)) for r in range(4) for c in range(4)]
 
-LAYOUT_FILE = '/data/project/vision/layout.json'
+LAYOUT_FILE = Path(__file__).with_name('layout.json')
 layout = {}
 try:
     for _i, _v in json.load(open(LAYOUT_FILE))['markers'].items():

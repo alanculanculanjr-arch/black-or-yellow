@@ -1,8 +1,9 @@
 # Board finder test: python3 board_check.py FRAME.jpg OUTPUT_DIR
 # Finds the 4 ArUco markers (any ids, any order), straightens the board, draws the 16 cells.
 import sys, json, cv2, numpy as np
+from pathlib import Path
 img = cv2.imread(sys.argv[1]); out = sys.argv[2]
-B = json.load(open('/data/project/vision/board.json'))
+B = json.load(open(Path(__file__).with_name('board.json')))
 A, C, W_ = B['area_mm'], B['cell_mm'], B['divider_mm']
 inset = (B['marker_mm'] - B['marker_black_mm']) / 2       # white border width
 k = B['marker_black_mm']

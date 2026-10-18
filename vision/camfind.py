@@ -2,9 +2,10 @@
 # doesn't need editing by hand. Checks every address on the Pi's Wi-Fi subnet for an
 # IP Webcam answer on port 8080 (/shot.jpg returning a JPEG). Takes a few seconds.
 import json, socket, subprocess, ipaddress, urllib.request
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
-CONFIG = '/data/project/config.json'
+CONFIG = Path(__file__).resolve().parent.parent / 'config.json'
 PORT = 8080
 
 

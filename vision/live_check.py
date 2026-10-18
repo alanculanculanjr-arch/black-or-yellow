@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # Live vision checker: a web page that shows what the ball detector sees, continuously.
-#   Web page:  /data/project/venv/bin/python ~/project/vision/live_check.py 192.168.137.123:8080 8001
+#   Web page:  venv/bin/python vision/live_check.py 192.168.137.123:8080 8001
 #              then open http://<pi-ip>:8001/ and press "Set empty board" with the board empty.
-#   Terminal:  /data/project/venv/bin/python ~/project/vision/live_check.py 192.168.137.123:8080 --text
+#   Terminal:  venv/bin/python vision/live_check.py 192.168.137.123:8080 --text
 #              prints one line per update; press Enter (with the board empty) to set the reference.
 # Ctrl+C to stop.
 #
@@ -15,6 +15,7 @@
 # both straightened onto the board and compared, ball = changed + cream + round + ball-sized,
 # height (angle) correction, colour-share rule, plus the game's 2-second stillness rule.
 import sys, json, time, threading, urllib.request
+from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import cv2, numpy as np
 
@@ -26,7 +27,7 @@ REUSE_S = 10      # reuse the last board position this long when markers are hid
 SAVE_DIR = next((x.split('=', 1)[1] for x in sys.argv if x.startswith('--save=')), None)   # save each analysed picture here
 REF_AFTER = next((float(x.split('=')[1]) for x in sys.argv if x.startswith('--ref-after=')), None)   # take the reference automatically after N s
 
-B = json.load(open('/data/project/vision/board.json'))
+B = json.load(open(Path(__file__).with_name('board.json')))
 A, C, W_ = B['area_mm'], B['cell_mm'], B['divider_mm']
 inset = (B['marker_mm'] - B['marker_black_mm']) / 2
 k = B['marker_black_mm']
@@ -49,7 +50,7 @@ N = int((A + 2 * M_) * S)
 T = np.array([[S, 0, M_ * S], [0, S, M_ * S], [0, 0, 1]], float)
 
 
-LAYOUT_FILE = '/data/project/vision/layout.json'
+LAYOUT_FILE = Path(__file__).with_name('layout.json')
 layout = {}          # marker id -> (board corner key, rotation): a property of the BOARD, saved once
 try:
     for i, v in json.load(open(LAYOUT_FILE))['markers'].items():
@@ -313,7 +314,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == '/debug':
             import os
-            d = '/data/project/vision/debug'; os.makedirs(d, exist_ok=True)
+            d = str(Path(__file__).with_name('debug')); os.makedirs(d, exist_ok=True)
             stamp = time.strftime('%H%M%S')
             if state.get('ref_raw') is not None: cv2.imwrite(f'{d}/{stamp}_ref.jpg', state['ref_raw'])
             if state.get('last_raw') is not None: cv2.imwrite(f'{d}/{stamp}_now.jpg', state['last_raw'])

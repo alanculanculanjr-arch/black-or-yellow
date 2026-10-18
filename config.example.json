@@ -1,0 +1,12 @@
+{
+  "_comment": "Copy this file to config.json and edit it. Use \"real\" for hardware/vision on the Pi, \"sim\" to run without them. Restart the server after editing.",
+  "hardware": "sim",
+  "vision": "sim",
+  "camera": "192.168.1.50:8080",
+  "dropRelaySeconds": 3,
+  "tiltAngle": 70,
+  "tiltHoldSeconds": 3,
+  "levelAngle": 0,
+  "detectTimeoutSeconds": 10,
+  "relayContacts": "NO"
+}

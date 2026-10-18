@@ -13,3 +13,15 @@ data/
 
 # Generated files
 exports/
+
+# Settings for this Pi (copy config.example.json to config.json)
+config.json
+
+# Test pictures, debug output and personal notes (kept on the Pi only)
+cv-test/
+screenshots/
+vision/run1/
+vision/debug/
+vision/*.log
+CLAUDE.md
+docs/code-excerpts.html

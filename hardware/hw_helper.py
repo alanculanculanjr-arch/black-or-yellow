@@ -9,6 +9,7 @@
 # Safety (spec 34.4): relay forced OFF at start, on all_off, on any error and on exit. The servo
 # isn't touched until the first servo command. A relay pulse is capped at 10 s.
 import sys, json, time, threading, signal
+from pathlib import Path
 import lgpio
 
 RELAY_PIN, SERVO_PIN = 17, 18           # header pins 11 and 12 (bench-tested 2026-10-14)
@@ -17,7 +18,7 @@ RELAY_PIN, SERVO_PIN = 17, 18           # header pins 11 and 12 (bench-tested 20
 #   "NC" (normally closed): device runs while the relay is switched OFF -> idle = pin HIGH, run = LOW
 #        (NOTE: with NC the device also runs whenever the Pi is off or this helper isn't running)
 try:
-    RELAY_NC = json.load(open('/data/project/config.json')).get('relayContacts', 'NO').upper() == 'NC'
+    RELAY_NC = json.load(open(Path(__file__).resolve().parent.parent / 'config.json')).get('relayContacts', 'NO').upper() == 'NC'
 except Exception:
     RELAY_NC = False
 RUN_LEVEL, IDLE_LEVEL = (0, 1) if RELAY_NC else (1, 0)

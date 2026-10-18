@@ -8,9 +8,10 @@
 #    not yellow) AND is round AND is ball-sized.
 # 3. Correct for the ball's height (angled camera), then the colour-share rule.
 import sys, glob, json, cv2, numpy as np
+from pathlib import Path
 
 D, OUT = sys.argv[1], sys.argv[2]
-B = json.load(open('/data/project/vision/board.json'))
+B = json.load(open(Path(__file__).with_name('board.json')))
 A, C, W_ = B['area_mm'], B['cell_mm'], B['divider_mm']
 inset = (B['marker_mm'] - B['marker_black_mm']) / 2
 k = B['marker_black_mm']

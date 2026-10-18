@@ -3,12 +3,13 @@
 #   python3 ~/project/tools/relay.py 3
 # Always switches off at the end, even after an error or Ctrl+C. Max 30 seconds.
 import sys, time, json, lgpio
+from pathlib import Path
 
 PIN = 17          # header pin 11
 MAX_SECONDS = 30
 # Same setting as the game: "relayContacts" in config.json, "NO" (default) or "NC".
 try:
-    NC = json.load(open('/data/project/config.json')).get('relayContacts', 'NO').upper() == 'NC'
+    NC = json.load(open(Path(__file__).resolve().parent.parent / 'config.json')).get('relayContacts', 'NO').upper() == 'NC'
 except Exception:
     NC = False
 RUN, IDLE = (0, 1) if NC else (1, 0)

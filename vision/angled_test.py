@@ -2,8 +2,9 @@
 # Board from >=3 ArUco markers, camera position via solvePnP, ball-height correction,
 # CREAM colour for the ball (not white paper, not yellow), colour-share rule with a 20-point lead.
 import sys, glob, json, cv2, numpy as np
+from pathlib import Path
 D, OUT = sys.argv[1], sys.argv[2]
-B = json.load(open('/data/project/vision/board.json'))
+B = json.load(open(Path(__file__).with_name('board.json')))
 A, C, W_ = B['area_mm'], B['cell_mm'], B['divider_mm']
 inset = (B['marker_mm'] - B['marker_black_mm']) / 2; k = B['marker_black_mm']
 R_BALL = B['ball_mm'] / 2

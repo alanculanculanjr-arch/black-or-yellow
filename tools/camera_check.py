@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # Live camera alignment check: run while mounting the phone. Ctrl+C to stop.
-#   /data/project/venv/bin/python ~/project/tools/camera_check.py 172.20.10.7:8080
+#   venv/bin/python tools/camera_check.py 172.20.10.7:8080
 # Every second it prints: how many markers are read, the camera's angle and height above the
 # board, the smallest marker size, and whether the camera moved since the previous reading.
 import sys, time, json, urllib.request
+from pathlib import Path
 import cv2, numpy as np
 
 addr = sys.argv[1] if len(sys.argv) > 1 else '172.20.10.7:8080'
-B = json.load(open('/data/project/vision/board.json'))
+B = json.load(open(Path(__file__).resolve().parent.parent / 'vision' / 'board.json'))
 A = B['area_mm']; inset = (B['marker_mm'] - B['marker_black_mm']) / 2; k = B['marker_black_mm']
 p = cv2.aruco.DetectorParameters(); p.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX; p.minMarkerPerimeterRate = 0.01
 det = cv2.aruco.ArucoDetector(cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50), p)

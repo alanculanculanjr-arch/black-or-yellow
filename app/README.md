@@ -1,11 +1,10 @@
 # Black or Yellow: server
 
-Phase 2 (backend foundation): player sign-up, banker login, live updates, join QR code.
-Phase 3 (points): starting points (default 20), top-ups, redemptions, banker approvals,
-transaction log, 5-second player notices.
-Phase 4 (rounds): betting, simulated ball drop/detection, settlement, refunds, STOP,
-crash vs power-cut recovery, Leave Game. Plus demo resets (spec 31) and hotspot-loss
-detection (spec 29.2). Camera (Phase 5) and servos (Phase 6) are still simulated.
+The game server: player sign-up, banker login, live updates, join QR code, points
+(starting points, top-ups, redemptions), rounds (betting, ball drop, detection,
+settlement, refunds, STOP, crash and power-cut recovery), Leave Game, demo resets and
+hotspot-loss detection. The relay, servo and camera are real or simulated depending on
+`config.json` in the project folder.
 
 ## Auto-start (one time, needs a read-write reboot cycle)
 
@@ -48,13 +47,15 @@ Then on a phone on the same Wi-Fi:
 | `src/wallet.js` | The only code that changes balances; writes the ledger; wallet check |
 | `src/points.js` | Point Store requests, banker decisions, starting points |
 | `src/rounds.js` | Round state machine, bets, settlement, STOP, crash/power-cut recovery |
-| `src/sim.js` | Simulated trapdoor/servos/camera (until Phases 5-6) |
+| `src/sim.js` | Simulated relay, servo and camera (when config says "sim") |
+| `src/real.js` | Real relay, servo and camera, through the Python helpers |
+| `src/pyworker.js` | Starts a Python helper and talks to it in JSON lines; restarts it if it crashes |
 | `src/resets.js` | Demo reset modes with automatic backup |
-| `src/game.js` | Game state (full state machine comes in Phase 4) |
+| `src/game.js` | Game state |
 | `src/network.js` | Pi's current IP, join QR code, hotspot-loss watcher |
 | `public/` | Player page (`index.html`) and banker page (`banker.html`) |
 | `scripts/set-banker.js` | Create or change the banker login |
 | `scripts/check-wallets.js` | Read-only wallet consistency check |
 
-Data lives in `/data/project/data/game.db`, outside this folder, so updating the code
+Data lives in `data/game.db` in the project folder (outside `app/`), so updating the code
 never touches it. Settings: `PORT` (default 3000) and `DB_PATH` environment variables.

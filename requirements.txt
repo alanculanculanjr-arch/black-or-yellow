@@ -1,0 +1,6 @@
+# Python packages for the camera (vision/) and GPIO (hardware/, tools/).
+# On a Raspberry Pi, lgpio can also come from apt: sudo apt install python3-lgpio
+opencv-python-headless>=4.8
+numpy>=1.26
+lgpio>=0.2
+gpiozero>=2.0
