@@ -1,0 +1,12 @@
+{
+  "_comment": "Black or Yellow settings. Restart the server after editing (sudo systemctl restart black-or-yellow, or Ctrl+C and npm start).",
+  "hardware": "real",
+  "vision": "real",
+  "camera": "172.20.10.8:8080",
+  "dropRelaySeconds": 3,
+  "tiltAngle": 70,
+  "tiltHoldSeconds": 3,
+  "levelAngle": 0,
+  "detectTimeoutSeconds": 10,
+  "relayContacts": "NC"
+}

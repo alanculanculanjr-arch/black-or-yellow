@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Banker · Black or Yellow</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>BANKER</h1>
+    <div class="row">
+      <span class="conn" id="conn"></span>
+      <button class="secondary" id="logout-btn" hidden>Log out</button>
+    </div>
+  </header>
+
+  <main>
+    <p class="muted" id="loading">Loading…</p>
+
+    <section class="card" id="login" hidden>
+      <h2>Banker login</h2>
+      <p class="msg error" id="no-account" hidden>
+        No banker account yet. On the Pi, run <code>npm run set-banker</code> in the app folder.
+      </p>
+      <form id="login-form">
+        <label for="username">Username</label>
+        <input id="username" autocomplete="username" autocapitalize="off">
+        <label for="password" style="margin-top: 8px">Password</label>
+        <input id="password" type="password" autocomplete="current-password">
+        <button class="full" id="login-btn" style="margin-top: 12px">Log in</button>
+        <p class="msg" id="login-msg" role="status"></p>
+      </form>
+    </section>
+
+    <section id="dash" hidden>
+      <div class="card">
+        <h2>Game</h2>
+        <div class="row" style="justify-content: space-between">
+          <span>Round: <strong id="round-no">–</strong></span>
+          <span>Active players: <strong id="active-count"></strong></span>
+        </div>
+        <ol class="steps" id="steps"></ol>
+        <div class="next" id="next">
+          <strong id="next-title"></strong>
+          <p id="next-text"></p>
+        </div>
+        <div id="camera-box" hidden>
+          <p id="camera-text" style="margin: 0 0 6px; font-weight: 600"></p>
+          <img id="snapshot" alt="Camera snapshot of the ball's final position" style="width: 100%; border-radius: 8px; display: block">
+        </div>
+        <div class="row" id="sim-row" hidden>
+          <label for="sim" style="margin: 0">Simulated ball:</label>
+          <select id="sim"></select>
+        </div>
+        <div id="primary"></div>
+        <div class="actions" id="actions"></div>
+        <p class="msg" id="action-msg" role="status"></p>
+        <div class="stop-row">
+          <span class="muted">State: <span id="state"></span></span>
+          <span id="stop-slot"></span>
+        </div>
+        <p id="wallet-check"></p>
+      </div>
+
+      <div class="card" id="bets-card" hidden>
+        <h2 id="bets-title">Bets</h2>
+        <p id="bet-totals"></p>
+        <div class="table-wrap">
+          <table id="bets">
+            <thead><tr><th>Player</th><th>Color</th><th>Points</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Point requests</h2>
+        <p class="muted" id="no-point-requests">None pending.</p>
+        <div class="table-wrap">
+          <table id="point-requests">
+            <thead><tr><th>Player</th><th>Type</th><th>Amount</th><th>Wallet</th><th></th><th></th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Players join here</h2>
+        <div class="qr" id="qr"></div>
+        <p><strong id="join-url"></strong></p>
+        <p class="muted">The address updates automatically if the Pi's IP changes.</p>
+      </div>
+
+      <div class="card">
+        <h2>Reactivation requests</h2>
+        <p class="muted" id="no-requests">None.</p>
+        <div class="table-wrap"><table id="requests"><tbody></tbody></table></div>
+      </div>
+
+      <div class="card">
+        <h2>Players</h2>
+        <p class="muted" id="no-players">Nobody has registered yet.</p>
+        <div class="table-wrap">
+          <table id="players">
+            <thead><tr><th></th><th>Nickname</th><th>Status</th><th>Wallet</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Settings</h2>
+        <form id="start-form">
+          <label for="start-amount">Starting points for new players</label>
+          <div class="row">
+            <select id="start-amount" style="flex: 1"></select>
+            <button id="start-btn">Save</button>
+          </div>
+          <p class="muted">Only affects players who register after you save. Changeable between rounds.</p>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Demo resets</h2>
+        <p class="muted">Only between rounds, with no pending point requests. A backup of the database is saved first.</p>
+        <div class="actions">
+          <button class="secondary" id="reset-points-btn">Reset points</button>
+          <button class="danger" id="reset-players-btn">Delete all players</button>
+        </div>
+        <p class="msg" id="reset-msg" role="status"></p>
+        <p class="muted" id="admin-log"></p>
+      </div>
+
+      <div class="card">
+        <h2>Transactions (latest 50)</h2>
+        <p class="muted" id="no-transactions">None yet.</p>
+        <div class="table-wrap">
+          <table id="transactions">
+            <thead><tr><th>Time</th><th>Player</th><th>Type</th><th>Amount</th><th>Balance after</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="reset-dialog">
+    <h2 id="reset-title"></h2>
+    <ul id="reset-what"></ul>
+    <label id="regrant-row"><input type="checkbox" id="regrant" checked style="width: auto"> Give everyone the current starting points again</label>
+    <label for="reset-password" style="margin-top: 8px">Banker password</label>
+    <input id="reset-password" type="password" autocomplete="current-password">
+    <p class="msg" id="reset-dlg-msg" role="status"></p>
+    <div class="row end">
+      <button class="secondary" id="reset-back">Back</button>
+      <button class="danger" id="reset-go"></button>
+    </div>
+  </dialog>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/banker.js"></script>
+</body>
+</html>

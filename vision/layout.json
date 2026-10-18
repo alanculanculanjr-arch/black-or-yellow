@@ -1,0 +1,37 @@
+{
+  "_note": "Which marker id sits in which board corner and how it is turned. Learned 2026-10-15 from a frame with all 4 markers; a property of the board, not of the camera.",
+  "markers": {
+    "2": {
+      "corner": [
+        1,
+        1
+      ],
+      "roll": 1,
+      "cell": "cell 16 (bottom-right)"
+    },
+    "0": {
+      "corner": [
+        1,
+        0
+      ],
+      "roll": 1,
+      "cell": "cell 13 (bottom-left)"
+    },
+    "1": {
+      "corner": [
+        0,
+        0
+      ],
+      "roll": 1,
+      "cell": "cell 1 (top-left)"
+    },
+    "3": {
+      "corner": [
+        0,
+        1
+      ],
+      "roll": 1,
+      "cell": "cell 4 (top-right)"
+    }
+  }
+}

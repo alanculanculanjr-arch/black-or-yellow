@@ -1,0 +1,8 @@
+<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1"><title>CV test images</title>
+<style>body{font:16px system-ui;margin:16px;background:#f4f3ef}img{max-width:100%;border:1px solid #ccc;background:#fff}h2{margin:24px 0 4px}p{margin:4px 0 8px;color:#555}</style>
+<h1>Black or Yellow: vision test images</h1>
+<h2>1. Original camera frame</h2><p>640×480 from IP Webcam, before any processing.</p><img src="1-original.jpg">
+<h2>2. Straightened board → pale pixels → round blobs</h2><p>Left: board warped to a straight top-down 400×400 square, red 4×4 grid, green = ball, purple = rejected blob (shine). Middle: pale + bright pixels (ball, dividers, shine). Right: after removing thin things.</p><img src="2-straightened-mask-blobs.png">
+<h2>3. Yellow-cell mask (corner finding attempt)</h2><p>Shine on the bottom cells breaks them up, so automatic corner finding failed here.</p><img src="3-yellow-cells-mask.png">
+<h2>4. All 60 test frames (straightened with the first frame's corners)</h2><p>Mostly wrong because the camera/board moved: green = ball found, purple = rejected blobs.</p><img src="4-all-60-frames.png">
+<h2>5. Proof the camera moved</h2><p>Frames 1, 20, 45 and 60: the board is in a different place and angle.</p><img src="5-camera-moved.png">

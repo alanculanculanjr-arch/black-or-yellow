@@ -1,0 +1,141 @@
+## Appendix: Source code excerpts
+These are simplified versions of the main parts of the code, so they are easy to read. The real files follow the same steps but add extra safety checks (for example, a round can never be paid twice, even if the Pi loses power in the middle). The file name under each heading shows where the real code is.
+### 1. Paying out a round
+app/src/rounds.js. When the banker confirms the colour, winners get double their bet back.
+```
+function settleRound(roundId, winningColour) {
+  for (const bet of betsInRound(roundId)) {
+    if (bet.color === winningColour) {
+      addPoints(bet.player, bet.amount * 2);   // winner gets 2x
+      markBet(bet, 'WON');
+    } else {
+      markBet(bet, 'LOST');                    // points were already taken when betting
+    }
+  }
+}
+```
+### 2. Placing a bet
+app/src/rounds.js. The server checks everything before taking the points.
+```
+function placeBet(player, colour, amount) {
+  if (game.state !== 'BETTING_OPEN')     return 'Betting is closed.';
+  if (player.status !== 'ACTIVE')        return 'Only active players can bet.';
+  if (![5, 10, 15, 20].includes(amount)) return 'Bets are 5, 10, 15 or 20 points.';
+  if (hasBetThisRound(player))           return 'You already have a bet in this round.';
+  if (amount > player.balance)           return 'Not enough points for that bet.';
+
+  saveBet(player, colour, amount);
+  addPoints(player, -amount);
+  return 'OK';
+}
+```
+### 3. Changing a balance
+app/src/wallet.js. Every change to a player's points goes through here and is written down in the ledger.
+```
+function addPoints(player, amount, key) {
+  if (ledger.has(key)) return;        // already recorded once, don't do it again
+  const newBalance = player.balance + amount;
+  if (newBalance < 0) throw new Error('balance cannot go below 0');
+  ledger.add(player, amount, newBalance, key);
+  player.balance = newBalance;
+}
+```
+### 4. Banker approving a top-up or redemption
+app/src/points.js. A second click on the same request does nothing.
+```
+function decide(request, action) {
+  if (request.status !== 'PENDING') return;   // already handled
+
+  if (action === 'approve') {
+    if (request.type === 'PURCHASE') addPoints(request.player, request.amount);
+    else addPoints(request.player, -request.amount);
+    request.status = 'APPROVED';
+  } else {
+    request.status = 'REJECTED';
+  }
+}
+```
+### 5. Dropping and recovering the ball
+app/src/real.js. Times and angles come from config.json.
+```
+async function dropBall() {
+  await relayOn(3);          // relay on for 3 seconds, the ball drops
+}
+
+async function recoverBall() {
+  await moveServo(70);       // tilt the board
+  await wait(3000);          // ball rolls off for 3 seconds
+  await moveServo(0);        // level again
+}
+```
+### 6. Relay and servo pins
+hardware/hw_helper.py. The relay is on GPIO 17 (pin 11) and the servo on GPIO 18 (pin 12).
+```
+RELAY_PIN = 17
+SERVO_PIN = 18
+
+def relay(on):
+    # NC relay: the device runs when the pin is LOW
+    lgpio.gpio_write(h, RELAY_PIN, 0 if on else 1)
+
+def servo(angle):
+    pulse = 1000 + 1000 * angle / 180     # 0 deg = 1000 us, 180 deg = 2000 us
+    lgpio.tx_servo(h, SERVO_PIN, int(pulse))
+```
+### 7. Finding the green ball
+vision/detector.py. Keep only green pixels, then pick the biggest round blob.
+```
+def find_ball(picture):
+    hsv = cv2.cvtColor(picture, cv2.COLOR_BGR2HSV)
+    green = cv2.inRange(hsv, (40, 80, 60), (90, 255, 255))
+    blobs, _ = cv2.findContours(green, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    balls = [b for b in blobs if is_round(b) and is_ball_size(b)]
+    if not balls:
+        return None
+    ball = max(balls, key=cv2.contourArea)
+    (x, y), radius = cv2.minEnclosingCircle(ball)
+    return x, y
+```
+### 8. Deciding BLACK or YELLOW
+vision/detector.py. Count how much of the ball sits on black cells and on yellow cells.
+```
+def decide_colour(ball):
+    black = yellow = 0
+    for cell in range(1, 17):
+        part = part_of_ball_in(cell, ball)
+        if cell in BLACK_CELLS:
+            black += part
+        else:
+            yellow += part
+    total = black + yellow                 # only the part over the board counts
+    black = black / total * 100
+    yellow = yellow / total * 100
+    if abs(black - yellow) < 20:
+        return 'INVALID'                   # too close to call
+    return 'BLACK' if black > yellow else 'YELLOW'
+```
+### 9. Waiting for the ball to stop
+vision/worker.py. The answer counts only when the ball stays in the same place for 2 seconds.
+```
+def wait_for_ball(timeout=10):
+    start = time.time()
+    still_since = time.time()
+    last = None
+    while time.time() - start < timeout:
+        ball = find_ball(take_picture())
+        if ball is None or last is None or distance(ball, last) > 5:
+            still_since = time.time()      # moved or not seen: start counting again
+        last = ball
+        if ball and time.time() - still_since >= 2:
+            return decide_colour(ball)
+    return 'TIMEOUT'
+```
+### 10. Player confirming a bet
+app/public/player.js. The phone sends the bet; the server decides if it is allowed.
+```
+confirmButton.onclick = async () => {
+  const reply = await send('/api/bet', { color: pick.color, amount: pick.amount });
+  if (reply.ok) showBalance(reply.me);
+  else showError(reply.message);
+};
+```

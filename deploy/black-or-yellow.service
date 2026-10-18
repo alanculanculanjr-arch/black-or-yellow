@@ -1,0 +1,23 @@
+# Starts the Black or Yellow server at boot and restarts it if it crashes (spec 29.3, 33.7).
+# Installed by install-autostart.sh. Logs: journalctl -u black-or-yellow -f
+[Unit]
+Description=Black or Yellow game server
+RequiresMountsFor=/data/project
+After=network.target
+
+[Service]
+Type=simple
+User=admin
+WorkingDirectory=/data/project/app
+# Port 80 gives players the shortest address: http://<pi-ip>/
+Environment=PORT=80
+Environment=NODE_ENV=production
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+ExecStart=/data/project/.tools/node/bin/node src/server.js
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

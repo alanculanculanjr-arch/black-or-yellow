@@ -1,0 +1,15 @@
+# Tools and libraries (reinstalled, not part of the project)
+.tools/
+venv/
+node_modules/
+__pycache__/
+*.pyc
+
+# Private game data: player names, points, banker login
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Generated files
+exports/

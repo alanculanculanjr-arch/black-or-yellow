@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Black or Yellow</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>BLACK OR YELLOW</h1>
+    <span class="conn" id="conn">connecting…</span>
+  </header>
+
+  <main>
+    <p class="muted" id="loading">Loading…</p>
+
+    <!-- New visitor -->
+    <section class="card" id="register" hidden>
+      <h2>Join the game</h2>
+      <form id="register-form">
+        <label for="nickname">Choose a nickname</label>
+        <input id="nickname" name="nickname" autocomplete="off" autocapitalize="off"
+               maxlength="12" placeholder="3–12 letters or numbers">
+        <p class="muted">Letters and numbers only, no spaces. You can't change it later.</p>
+        <button class="full" id="register-btn">Join</button>
+        <p class="msg" id="register-msg" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Registered player -->
+    <section id="player" hidden>
+      <div class="card">
+        <div class="row" style="justify-content: space-between">
+          <strong id="me-nickname"></strong>
+          <span class="pill" id="me-status"></span>
+        </div>
+        <h2 style="margin-top: 12px">Wallet</h2>
+        <div class="big"><span id="me-balance">0</span> pts</div>
+        <p class="muted" id="me-reserved" hidden></p>
+      </div>
+
+      <div class="card" id="game-card">
+        <h2 id="round-title">Game</h2>
+        <p id="game-state">Waiting for the banker to start a round.</p>
+        <p class="result" id="result" hidden></p>
+        <p id="my-bet" hidden></p>
+
+        <div id="bet-area" hidden>
+          <div class="choice" role="group" aria-label="Color">
+            <button type="button" class="pick black" data-color="BLACK">BLACK</button>
+            <button type="button" class="pick yellow" data-color="YELLOW">YELLOW</button>
+          </div>
+          <div class="choice amounts" role="group" aria-label="Points">
+            <button type="button" class="pick" data-amount="5">5</button>
+            <button type="button" class="pick" data-amount="10">10</button>
+            <button type="button" class="pick" data-amount="15">15</button>
+            <button type="button" class="pick" data-amount="20">20</button>
+          </div>
+          <button class="full" id="bet-btn" disabled>Confirm bet</button>
+          <p class="msg" id="bet-msg" role="status"></p>
+        </div>
+      </div>
+
+      <div class="card" id="inactive-card" hidden>
+        <h2>You're inactive</h2>
+        <p>Your wallet and nickname are saved. To play again, ask the banker to reactivate you.</p>
+        <button class="full" id="reactivate-btn">Request reactivation</button>
+        <p class="msg" id="reactivate-msg" role="status"></p>
+      </div>
+
+      <div class="card" id="store-card">
+        <h2>Point Store</h2>
+        <p id="req-status" hidden></p>
+        <form id="buy-form">
+          <label for="buy-amount">Buy points with prop money</label>
+          <div class="row">
+            <select id="buy-amount" style="flex: 1"></select>
+            <button id="buy-btn">Request top-up</button>
+          </div>
+        </form>
+        <form id="redeem-form" style="margin-top: 12px">
+          <label for="redeem-amount">Redeem points for prop money</label>
+          <div class="row">
+            <input id="redeem-amount" type="number" inputmode="numeric" min="5" step="5" placeholder="Multiple of 5" style="flex: 1; width: auto">
+            <button id="redeem-btn">Request redemption</button>
+          </div>
+        </form>
+        <p class="msg" id="store-msg" role="status"></p>
+        <p class="muted">The banker hands over or collects the prop money, then approves your request.</p>
+      </div>
+
+      <button class="secondary full" id="leave-btn">Leave game</button>
+      <p class="muted" id="leave-queued" hidden>You'll leave the game when this round ends.</p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <dialog id="bet-dialog">
+    <h2>Review your bet</h2>
+    <p class="big"><span id="dlg-amount"></span> pts on <span id="dlg-color"></span></p>
+    <p class="muted">Once confirmed, the points are taken now and the bet is locked: you can't change or cancel it.</p>
+    <div class="row end">
+      <button class="secondary" id="dlg-back">Back</button>
+      <button id="dlg-confirm">Confirm bet</button>
+    </div>
+  </dialog>
+
+  <dialog id="leave-dialog">
+    <h2>Leave the game?</h2>
+    <ul>
+      <li>Your wallet balance is kept.</li>
+      <li>Your account and history are kept, and nobody else can take your nickname.</li>
+      <li>Any pending top-up or redemption is cancelled, and held points are released.</li>
+      <li>To play again you'll need the banker to reactivate you.</li>
+      <li>If a round is in progress, you leave when it ends. Your bet still counts.</li>
+    </ul>
+    <div class="row end">
+      <button class="secondary" id="leave-back">Stay</button>
+      <button class="danger" id="leave-confirm">Leave game</button>
+    </div>
+  </dialog>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/player.js"></script>
+</body>
+</html>
